@@ -1,6 +1,6 @@
 {
-  "name": "pdf-lib",
-  "version": "1.17.1",
+  "name": "@prd-huy-ta/pdf-lib",
+  "version": "1.0.0",
   "description": "Create and modify PDF files with JavaScript",
   "author": "Andrew Dillon <andrew.dillon.j@gmail.com>",
   "contributors": [
@@ -32,7 +32,7 @@
     "Ching Chang (https://github.com/ChingChang9)"
   ],
   "scripts": {
-    "release:latest": "yarn publish --tag latest && yarn pack && yarn release:tag",
+    "release:latest": "yarn publish --access public --tag latest && yarn pack && yarn release:tag",
     "release:next": "yarn publish --tag next",
     "release:prep": "yarn clean && yarn lint && yarn typecheck && yarn test && yarn build",
     "release:tag": "TAG=\"v$(yarn --silent get:version)\" && git tag $TAG && git push origin $TAG",
@@ -120,9 +120,12 @@
   "license": "MIT",
   "private": false,
   "homepage": "https://pdf-lib.js.org",
-  "repository": "git+https://github.com/Hopding/pdf-lib.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ParadoxAi/pdf-lib"
+  },
   "bugs": {
-    "url": "https://github.com/Hopding/pdf-lib/issues"
+    "url": "https://github.com/ParadoxAi/pdf-lib/issues"
   },
   "keywords": [
     "pdf-lib",
@@ -137,5 +140,9 @@
     "typescript",
     "javascript",
     "library"
-  ]
+  ],
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  }
 }
