@@ -798,3 +798,59 @@ export const drawOptionList = (options: {
     popGraphicsState(),
   ];
 };
+
+export const drawSignatureField = (options: {
+  x: number | PDFNumber;
+  y: number | PDFNumber;
+  width: number | PDFNumber;
+  height: number | PDFNumber;
+  borderWidth: number | PDFNumber;
+  color: Color | undefined;
+  borderColor: Color | undefined;
+  textColor: Color;
+  font: string | PDFName;
+  fontSize: number | PDFNumber;
+  padding: number | PDFNumber;
+}) => {
+  const x = asNumber(options.x);
+  const y = asNumber(options.y);
+  const width = asNumber(options.width);
+  const height = asNumber(options.height);
+  const borderWidth = asNumber(options.borderWidth);
+  const padding = asNumber(options.padding);
+
+  const clipX = x + borderWidth / 2 + padding;
+  const clipY = y + borderWidth / 2 + padding;
+  const clipWidth = width - (borderWidth / 2 + padding) * 2;
+  const clipHeight = height - (borderWidth / 2 + padding) * 2;
+
+  const clippingArea = [
+    moveTo(clipX, clipY),
+    lineTo(clipX, clipY + clipHeight),
+    lineTo(clipX + clipWidth, clipY + clipHeight),
+    lineTo(clipX + clipWidth, clipY),
+    closePath(),
+    clip(),
+    endPath(),
+  ];
+
+  const background = drawRectangle({
+    x,
+    y,
+    width,
+    height,
+    borderWidth: options.borderWidth,
+    color: options.color,
+    borderColor: options.borderColor,
+    rotate: degrees(0),
+    xSkew: degrees(0),
+    ySkew: degrees(0),
+  });
+
+  return [
+    pushGraphicsState(),
+    ...background,
+    ...clippingArea,
+    popGraphicsState(),
+  ];
+};

@@ -15,6 +15,7 @@ import {
   drawButton,
   drawTextField,
   drawOptionList,
+  drawSignatureField,
 } from 'src/api/operations';
 import {
   rgb,
@@ -414,6 +415,83 @@ export const defaultButtonAppearanceProvider: AppearanceProviderFor<PDFButton> =
       }),
     ],
   };
+};
+
+export const defaultSignatureAppearanceProvider: AppearanceProviderFor<PDFSignature> = (
+  signature,
+  widget,
+  font,
+) => {
+  // The `/DA` entry can be at the widget or field level - so we handle both
+  const widgetColor = getDefaultColor(widget);
+  const fieldColor = getDefaultColor(signature.acroField);
+  const widgetFontSize = getDefaultFontSize(widget);
+  const fieldFontSize = getDefaultFontSize(signature.acroField);
+
+  const rectangle = widget.getRectangle();
+  const ap = widget.getAppearanceCharacteristics();
+  const bs = widget.getBorderStyle();
+  const captions = ap?.getCaptions();
+  const normalText = captions?.normal ?? '';
+  const downText = captions?.down ?? normalText ?? '';
+
+  const borderWidth = bs?.getWidth() ?? 0;
+  const rotation = reduceRotation(ap?.getRotation());
+  const { width, height } = adjustDimsForRotation(rectangle, rotation);
+
+  const rotate = rotateInPlace({ ...rectangle, rotation });
+
+  const black = rgb(0, 0, 0);
+
+  const borderColor = componentsToColor(ap?.getBorderColor());
+
+  const bounds = {
+    x: borderWidth,
+    y: borderWidth,
+    width: width - borderWidth * 2,
+    height: height - borderWidth * 2,
+  };
+  const normalLayout = layoutSinglelineText(normalText, {
+    alignment: TextAlignment.Center,
+    fontSize: widgetFontSize ?? fieldFontSize,
+    font,
+    bounds,
+  });
+  const downLayout = layoutSinglelineText(downText, {
+    alignment: TextAlignment.Center,
+    fontSize: widgetFontSize ?? fieldFontSize,
+    font,
+    bounds,
+  });
+
+  // Update font size and color
+  const fontSize = Math.min(normalLayout.fontSize, downLayout.fontSize);
+  const textColor = widgetColor ?? fieldColor ?? black;
+  if (widgetColor || widgetFontSize !== undefined) {
+    updateDefaultAppearance(widget, textColor, font, fontSize);
+  } else {
+    updateDefaultAppearance(signature.acroField, textColor, font, fontSize);
+  }
+
+  const normalBackgroundColor = componentsToColor(ap?.getBackgroundColor());
+
+  const padding = 1;
+
+  const options = {
+    x: 0 + borderWidth / 2,
+    y: 0 + borderWidth / 2,
+    width: width - borderWidth,
+    height: height - borderWidth,
+    borderWidth: borderWidth ?? 0,
+    borderColor,
+    textColor,
+    font: font.name,
+    fontSize,
+    color: normalBackgroundColor,
+    padding,
+  };
+
+  return [...rotate, ...drawSignatureField(options)];
 };
 
 export const defaultTextFieldAppearanceProvider: AppearanceProviderFor<PDFTextField> = (
