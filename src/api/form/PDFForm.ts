@@ -513,6 +513,42 @@ export default class PDFForm {
     return PDFTextField.of(text, text.ref, this.doc);
   }
 
+    /**
+   * Create a new radio group field in this [[PDFForm]] with the given name.
+   * For example:
+   * ```js
+   * const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
+   * const page = pdfDoc.addPage()
+   *
+   * const form = pdfDoc.getForm()
+   * const radioGroup = form.createRadioGroup('cool.new.radioGroup')
+   *
+   * radioGroup.addOptionToPage('is-dog', page, { y: 0 })
+   * radioGroup.addOptionToPage('is-cat', page, { y: 75 })
+   * ```
+   * An error will be thrown if a field already exists with the provided name.
+   * @param name The fully qualified name for the new radio group.
+   * @returns The new radio group field.
+   */
+    createSignature(name: string): PDFSignature {
+      assertIs(name, 'name', ['string']);
+      const nameParts = splitFieldName(name);
+  
+      const parent = this.findOrCreateNonTerminals(nameParts.nonTerminal);
+  
+      const acroSignature = PDFAcroSignature.create(this.doc.context);
+      acroSignature.setPartialName(nameParts.terminal);
+  
+      addFieldToParent(
+        parent,
+        [acroSignature, acroSignature.ref],
+        nameParts.terminal,
+      );
+  
+      return PDFSignature.of(acroSignature, acroSignature.ref, this.doc);
+    }
+  
+
   /**
    * Flatten all fields in this [[PDFForm]].
    *
