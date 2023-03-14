@@ -15,13 +15,11 @@ import PDFPage from '../PDFPage';
 import { degrees } from '../rotations';
 import {
   AppearanceProviderFor,
-  defaultButtonAppearanceProvider,
   defaultSignatureAppearanceProvider,
   normalizeAppearance,
 } from './appearances';
 import { rgb } from '../colors';
 import PDFFont from '../PDFFont';
-import { defaultOptionListAppearanceProvider } from './appearances';
 
 /**
  * Represents a signature field of a [[PDFForm]].
@@ -119,5 +117,25 @@ export default class PDFSignature extends PDFField {
     }
 
     return false;
+  }
+
+  defaultUpdateAppearances(font: PDFFont) {
+    assertIs(font, 'font', [[PDFFont, 'PDFFont']]);
+    this.updateAppearances(font);
+  }
+
+  updateAppearances(
+    font: PDFFont,
+    provider?: AppearanceProviderFor<PDFSignature>,
+  ) {
+    assertIs(font, 'font', [[PDFFont, 'PDFFont']]);
+    assertOrUndefined(provider, 'provider', [Function]);
+
+    const widgets = this.acroField.getWidgets();
+    for (let idx = 0, len = widgets.length; idx < len; idx++) {
+      const widget = widgets[idx];
+      this.updateWidgetAppearance(widget, font, provider);
+    }
+    this.markAsClean();
   }
 }
