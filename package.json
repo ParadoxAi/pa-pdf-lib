@@ -1,6 +1,6 @@
 {
   "name": "@prd-huy-ta/pdf-lib",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Create and modify PDF files with JavaScript",
   "author": "Andrew Dillon <andrew.dillon.j@gmail.com>",
   "contributors": [
