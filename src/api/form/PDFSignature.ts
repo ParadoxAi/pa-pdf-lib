@@ -101,8 +101,30 @@ export default class PDFSignature extends PDFField {
     provider?: AppearanceProviderFor<PDFSignature>,
   ) {
     const apProvider = provider ?? defaultSignatureAppearanceProvider;
-    const appearances = normalizeAppearance(apProvider(this, widget, font));
-    this.updateWidgetAppearanceWithFont(widget, font, appearances);
+    let hasAppearance = this.doesWidgetHaveAppeareance(widget);
+    if (!hasAppearance) {
+      const appearances = normalizeAppearance(apProvider(this, widget, font));
+      this.updateWidgetAppearanceWithFont(widget, font, appearances);
+    }
+  }
+
+  private doesWidgetHaveNormalAppearance(widget: PDFWidgetAnnotation): boolean {
+    try {
+      const normalAppearance =
+        widget.getAppearances()?.normal instanceof PDFStream;
+      return !!normalAppearance;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  private doesWidgetHaveAppeareance(widget: PDFWidgetAnnotation): boolean {
+    const hasNormalAppearance = this.doesWidgetHaveNormalAppearance(widget);
+    if (hasNormalAppearance) {
+      return true;
+    }
+    const normalAppearance = widget.getNormalAppearance();
+    return !!normalAppearance;
   }
 
   needsAppearancesUpdate(): boolean {
@@ -111,9 +133,8 @@ export default class PDFSignature extends PDFField {
     const widgets = this.acroField.getWidgets();
     for (let idx = 0, len = widgets.length; idx < len; idx++) {
       const widget = widgets[idx];
-      const hasAppearances =
-        widget.getAppearances()?.normal instanceof PDFStream;
-      if (!hasAppearances) return true;
+      const hasAppearance = this.doesWidgetHaveAppeareance(widget);
+      if (!hasAppearance) return true;
     }
 
     return false;
